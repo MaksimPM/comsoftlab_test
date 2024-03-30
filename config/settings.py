@@ -41,6 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'corsheaders',
+    'rest_framework',
+    'channels',
 
     'users',
     'mail',
@@ -68,7 +70,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -87,7 +89,10 @@ ASGI_APPLICATION = 'config.asgi.application'
 
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379)],
+        },
     },
 }
 
@@ -151,13 +156,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'users.User'
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-
-EMAIL_HOST = 'imap.yandex.ru'
+EMAIL_HOST = os.getenv('EMAIL_HOST')
 EMAIL_PORT = 993
+EMAIL_USE_SSL = True
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
-EMAIL_USE_SSL = True
 
 SUPERUSER_EMAIL = os.getenv('SUPERUSER_EMAIL')
 SUPERUSER_PASSWORD = os.getenv('SUPERUSER_PASSWORD')

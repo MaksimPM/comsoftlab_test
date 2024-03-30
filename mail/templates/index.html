@@ -1,33 +1,50 @@
-<!-- messages.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Email Messages</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Сообщения по электронной почте</title>
+    <style>
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
 </head>
 <body>
-    <h1>Email Messages</h1>
-    <div id="progress-bar">
-        <p id="progress-status">Reading messages...</p>
-        <progress id="progress" value="0" max="100"></progress>
-    </div>
-    <table id="messages-table">
+    <h1>Сообщения по электронной почте</h1>
+    <table>
         <thead>
             <tr>
-                <th>Subject</th>
-                <th>Sent Date</th>
-                <th>Received Date</th>
-                <th>Attachments</th>
+                <th>Тема</th>
+                <th>Отправитель</th>
+                <th>Дата отправки</th>
+                <th>Текст</th>
             </tr>
         </thead>
         <tbody>
-            <!-- Messages will be dynamically added here -->
+            {% for message in messages %}
+            <tr>
+                <td>{{ message.subject }}</td>
+                <td>{{ message.sender }}</td>
+                <td>{{ message.sent_date }}</td>
+                <td>{{ message.body | safe }}</td>
+            </tr>
+            {% endfor %}
         </tbody>
     </table>
-    <script>
-        // JavaScript code for updating progress and fetching messages
-    </script>
 </body>
 </html>
+
+
 
