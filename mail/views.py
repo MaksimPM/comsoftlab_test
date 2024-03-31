@@ -65,7 +65,6 @@ def fetch_messages(request):
                 if not filename:
                     continue
 
-                # Оригинальное название файла
                 filename_tuple = email.header.decode_header(filename)[0]
                 if isinstance(filename_tuple[0], bytes):
                     filename = filename_tuple[0].decode(filename_tuple[1] or 'utf-8')
@@ -74,12 +73,10 @@ def fetch_messages(request):
 
                 attachment_data = part.get_payload(decode=True)
 
-                # Сохраняем байтовые данные в отдельную папку
                 attachment_path = os.path.join(settings.MEDIA_ROOT, 'attachments', filename)
                 with open(attachment_path, 'wb') as file:
                     file.write(attachment_data)
 
-                # Создаем объект Attachment и сохраняем имя файла в базе данных
                 attachment = Attachment.objects.create(filename=filename, file=filename)
                 attachments.append(attachment)
 
