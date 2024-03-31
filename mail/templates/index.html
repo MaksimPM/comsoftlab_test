@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -28,8 +29,10 @@
             <tr>
                 <th>Тема</th>
                 <th>Отправитель</th>
-                <th>Дата отправки</th>
                 <th>Текст</th>
+                <th>Дата отправки</th>
+                <th>Дата получения</th>
+                <th>Вложения</th>
             </tr>
         </thead>
         <tbody>
@@ -37,14 +40,13 @@
             <tr>
                 <td>{{ message.subject }}</td>
                 <td>{{ message.sender }}</td>
+                <td>{{ message.body|truncatechars:100 }}</td>
                 <td>{{ message.sent_date }}</td>
-                <td>{{ message.body | safe }}</td>
+                <td>{{ message.received_date }}</td>
+                <td>{{ message.attachments }}</td>
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </body>
 </html>
-
-
-

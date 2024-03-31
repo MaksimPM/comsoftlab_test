@@ -1,8 +1,16 @@
+import os
+
 from django.db import models
+
+NULLABLE = {'blank': True, 'null': True}
 
 
 class Attachment(models.Model):
-    file = models.FileField(upload_to='attachments/')
+    filename = models.CharField(max_length=500, **NULLABLE)
+    file = models.FileField(upload_to='attachments', **NULLABLE)
+
+    def __str__(self):
+        return self.filename
 
     class Meta:
         verbose_name = 'вложение'
