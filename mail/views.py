@@ -7,6 +7,7 @@ from django.conf import settings
 from django.shortcuts import render
 from .models import Message, Attachment
 import re
+from bs4 import BeautifulSoup
 
 
 def decode_sender(encoded_sender):
@@ -59,26 +60,35 @@ def fetch_messages(request):
 
         if m.is_multipart():
             for part in m.walk():
-                if part.get_content_maintype() == 'multipart':
-                    continue
-                filename = part.get_filename()
-                if not filename:
-                    continue
+                content_type = part.get_content_type()
+                if "text/html" in content_type:
+                    html_content = part.get_payload(decode=True).decode(part.get_content_charset() or 'utf-8')
+                    soup = BeautifulSoup(html_content, 'html.parser')
+                    body = soup.get_text(separator="\n")
+                    break
+                elif "text/plain" in content_type:
+                    body = part.get_payload(decode=True).decode(part.get_content_charset() or 'utf-8')
+                elif "multipart" not in content_type:
+                    filename = part.get_filename()
+                    if filename:
+                        filename_tuple = email.header.decode_header(filename)[0]
+                        if isinstance(filename_tuple[0], bytes):
+                            filename = filename_tuple[0].decode(filename_tuple[1] or 'utf-8')
+                        else:
+                            filename = filename_tuple[0]
+                        attachment_data = part.get_payload(decode=True)
+                        attachment_path = os.path.join(settings.MEDIA_ROOT, 'attachments', filename)
+                        with open(attachment_path, 'wb') as file:
+                            file.write(attachment_data)
+                        attachment = Attachment.objects.create(filename=filename, file=filename)
+                        attachments.append(attachment)
 
-                filename_tuple = email.header.decode_header(filename)[0]
-                if isinstance(filename_tuple[0], bytes):
-                    filename = filename_tuple[0].decode(filename_tuple[1] or 'utf-8')
-                else:
-                    filename = filename_tuple[0]
-
-                attachment_data = part.get_payload(decode=True)
-
-                attachment_path = os.path.join(settings.MEDIA_ROOT, 'attachments', filename)
-                with open(attachment_path, 'wb') as file:
-                    file.write(attachment_data)
-
-                attachment = Attachment.objects.create(filename=filename, file=filename)
-                attachments.append(attachment)
+        if not body:
+            for part in m.walk():
+                content_type = part.get_content_type()
+                if "text/plain" in content_type:
+                    body = part.get_payload(decode=True).decode(part.get_content_charset() or 'utf-8')
+                    break
 
         try:
             message_obj = Message.objects.get(subject=subject, sent_date=sent_date)
