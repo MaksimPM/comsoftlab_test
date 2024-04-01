@@ -5,7 +5,7 @@ from datetime import datetime
 from dateutil import parser
 from django.conf import settings
 from django.shortcuts import render
-from .models import Message, Attachment
+from mail.models import Message, Attachment
 import re
 from bs4 import BeautifulSoup
 
